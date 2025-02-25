@@ -13,7 +13,7 @@ def main() -> None:
     # Create the Application and pass it your bot's token.
     application = ApplicationBuilder().token(BOT_TOKEN).read_timeout(300).write_timeout(300).build()
 
-    application.add_handler(MessageHandler(~filters.ChatType.PRIVATE & ~filters.Chat(GROUP_CHAT_ID), leave_group))
+    #application.add_handler(MessageHandler(~filters.ChatType.PRIVATE & ~filters.Chat(GROUP_CHAT_ID), leave_group))
 
     conv_handler = ConversationHandler(
         entry_points=[CommandHandler("start", start)],
