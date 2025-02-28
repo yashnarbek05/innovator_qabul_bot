@@ -9,8 +9,7 @@ from telegram.ext import (
 )
 
 from bot.models.user import User
-from config import GROUP_CHAT_ID, SHEET_NAME_FOR_OLD_DATAS, SHEET_NAME_FOR_NEW_DATAS, \
-    NEW_VOLUNTEERS_BEGINNING_ID
+from config import GROUP_CHAT_ID
 from image.service import prepare_badge
 from sheet.service import get_values_from_sheet, update_allowing, update_given, write_volunteer_id
 
