@@ -2,7 +2,7 @@ import logging
 import os
 import re
 
-from telegram import Update, InlineKeyboardMarkup, InlineKeyboardButton
+from telegram import Update, InlineKeyboardMarkup, InlineKeyboardButton, ReplyKeyboardMarkup, KeyboardButton
 from telegram.ext import (
     ContextTypes,
     ConversationHandler, CallbackContext,
@@ -22,11 +22,11 @@ logging.getLogger("httpx").setLevel(logging.ERROR)
 
 logger = logging.getLogger(__name__)
 
-FULLNAME, PHOTO, LOCATION, BIO = range(1, 5)
+FULLNAME, NUMBER, PHOTO, LOCATION, BIO = range(1, 6)
 LANGUAGE = 0
-REGENERATE = 6
 PHOTO_TO_REGENERATE = 7
 ADMIN = 8
+
 
 users_apply_certificate = list()
 
@@ -53,18 +53,38 @@ async def language(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     # Some clients may have trouble otherwise. See https://core.telegram.org/bots/api#callbackquery
     await query.answer("Progress...")
 
+    keyboard = [[KeyboardButton("📞 Share Your Number", request_contact=True)]]
+    reply_markup1 = ReplyKeyboardMarkup(keyboard, one_time_keyboard=True, resize_keyboard=True)
+
+
     messages = {
-        'en': f"Hello, {query.from_user.first_name}! Enter the full name you filled in the membership form:",
-        'ru': f"Здравствуйте, {query.from_user.first_name}! Введите полное имя, которое вы указали в форме членства:",
-        'uz': f"Assalomu alaykum, {query.from_user.first_name}! A'zolik anketasida toʻldirgan toʻliq ism va familiyangizni kiriting:"
+        'en': f"Hello, {query.from_user.first_name}! Share your number:",
+        'ru': f"Здравствуйте, {query.from_user.first_name}! Поделитесь своим номером:",
+        'uz': f"Assalomu alaykum, {query.from_user.first_name}! Raqamingizni ulashing:"
     }
 
-    await query.edit_message_text(text=messages.get(query.data))
+    
+    await query.message.reply_text(text = messages.get(query.data), reply_markup=reply_markup1)
 
     context.user_data['language'] = query.data
 
-    return FULLNAME
+    return NUMBER
 
+
+async def receive_number(update: Update, context: CallbackContext) -> None:
+    contact = update.message.contact
+    await update.message.reply_text(f"Thank you! Your number: {contact.phone_number}")
+
+    messages = {
+        'en': f"Enter your first and last name to register!",
+        'ru': f"Введите свое имя и фамилию для регистрации!",
+        'uz': f"Roʻyxatdan oʻtish uchun ism va familiyangizni kiriting!"
+    }
+
+    
+    await update.message.reply_text(messages.get(context.user_data.get('language')))
+
+    return FULLNAME
 
 def clear_datas(context):
     context.chat_data.clear()
@@ -74,18 +94,6 @@ def clear_datas(context):
 async def fullname(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     user = update.message.from_user
     user_fullname = update.message.text
-
-    logger.info("name of %s: %s", user.first_name, user_fullname)
-
-    messages = {
-        'uz': "Iltimos, kuting, men sizning ismingizni ro'yxatdan o'tgan odamlar ro'yxatidan qidiryapman ...",
-        'ru': 'Пожалуйста, подождите, я ищу ваше имя в списке зарегистрированных людей…',
-        'en': "Please wait, I am searching your name from registreted people's list..."
-    }
-
-    await update.message.reply_text(
-        messages.get(context.user_data.get('language'))
-    )
 
     result = all(not char.isdigit() for char in user_fullname)
 
@@ -111,123 +119,6 @@ async def fullname(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
         await update.message.reply_text(messages.get(context.user_data.get('language')))
         return ConversationHandler.END
 
-    new_datas = await get_values_from_sheet(SHEET_NAME_FOR_NEW_DATAS)
-
-    for i in range(1, len(new_datas)):
-        user_from_excel = new_datas[i]
-        if (user_fullname.lower() == user_from_excel[2].lower().strip() and
-                (len(user_from_excel) <= 13 or user_from_excel[12] == 'FALSE') and  # is_given
-                (len(user_from_excel) <= 14 or user_from_excel[13] == 'FALSE')  # is_allowed
-        ):
-
-            messages = {
-                'uz': "Sizning roʻyxatdan oʻtganingiz tasdiqlandi. Bizga rasmiy rasmingizni yuboring.\nRasm talablari:\n1. Tiniq va yuz qism toʻliq tushsin.\n2. Rasm oʻlchamiga eʼtibor bering. \n3. Yoki namunaga qarang",
-                'ru': 'Ваша регистрация подтверждена. Пожалуйста, пришлите нам свою официальную фотографию.\nТребования к фотографии:\n1. Четкое и анфас.\n2. Обратите внимание на размер фотографии. \n3. Или посмотрите образец',
-                'en': "Your registration has been confirmed. Please send us your official photo.\nPhoto requirements:\n1. Clear and full face.\n2. Pay attention to the size of the photo. \n3. Or see a sample"
-            }
-
-            await update.message.reply_photo("images/example_avatar_photo.png",
-                                             caption=messages.get(context.user_data.get('language'))
-                                             )
-
-            context.user_data['fullname'] = user_from_excel[2]
-            context.user_data['time'] = user_from_excel[0]
-            context.user_data['vol_id'] = i + NEW_VOLUNTEERS_BEGINNING_ID
-            context.user_data['user_all_datas'] = user_from_excel
-            context.user_data['sheet_name'] = SHEET_NAME_FOR_NEW_DATAS
-            context.user_data['sheet_id'] = i
-
-            new_datas.clear()
-
-            return PHOTO
-
-        elif (user_fullname.lower() == user_from_excel[2].lower().strip()
-              and user_from_excel[12] == 'TRUE'  # is_given
-        ):
-            messages = {
-                'uz': "Men sizning guvohnomangizni allaqachon yaratdim, agar qayta tiklamoqchi bo'lsangiz, \n/regenerate yuboring...",
-                'ru': 'Я уже создал ваш бежик, отправьте \n/regenerate, если хотите восстановить…',
-                'en': "I generated your badge already, send \n/regenerate if you want regenerate..."
-            }
-
-            await update.message.reply_text(
-                messages.get(context.user_data.get('language'))
-            )
-
-            context.user_data['fullname'] = user_from_excel[2]
-            context.user_data['time'] = user_from_excel[0]
-            context.user_data['vol_id'] = i + NEW_VOLUNTEERS_BEGINNING_ID
-
-            logger.info(f"sending to regenerate {user_fullname}")
-
-            new_datas.clear()
-
-            return REGENERATE
-
-    old_datas = await get_values_from_sheet(SHEET_NAME_FOR_OLD_DATAS)
-
-    for i in range(1, len(old_datas)):
-        user_from_excel = old_datas[i]
-        if (user_fullname.lower() == user_from_excel[2].lower().strip() and
-                (len(user_from_excel) <= 13 or user_from_excel[12] == 'FALSE') and  # is_given
-                (len(user_from_excel) <= 14 or user_from_excel[13] == 'FALSE')  # is_allowed
-        ):
-
-            messages = {
-                'uz': "Sizning roʻyxatdan oʻtganingiz tasdiqlandi. Bizga rasmiy rasmingizni yuboring.\nRasm talablari:\n1. Tiniq va yuz qism toʻliq tushsin.\n2. Rasm oʻlchamiga eʼtibor bering. \n3. Yoki namunaga qarang",
-                'ru': 'Ваша регистрация подтверждена. Пожалуйста, пришлите нам свою официальную фотографию.\nТребования к фотографии:\n1. Четкое и анфас.\n2. Обратите внимание на размер фотографии. \n3. Или посмотрите образец',
-                'en': "Your registration has been confirmed. Please send us your official photo.\nPhoto requirements:\n1. Clear and full face.\n2. Pay attention to the size of the photo. \n3. Or see a sample"
-            }
-
-            await update.message.reply_photo("images/example_avatar_photo.png",
-                                             caption=messages.get(context.user_data.get('language'))
-                                             )
-
-            context.user_data['fullname'] = user_from_excel[2]
-            context.user_data['time'] = user_from_excel[0]
-            context.user_data['vol_id'] = i
-            context.user_data['user_all_datas'] = user_from_excel
-
-            context.user_data['sheet_name'] = SHEET_NAME_FOR_OLD_DATAS
-            context.user_data['sheet_id'] = i
-
-            return PHOTO
-
-        elif (user_fullname.lower() == user_from_excel[2].lower().strip()
-            and user_from_excel[12] == 'TRUE'  # is_given
-        ):
-            messages = {
-                'uz': "Men sizning guvohnomangizni allaqachon yaratdim, agar qayta tiklamoqchi bo'lsangiz, \n/regenerate yuboring...",
-                'ru': 'Я уже создал ваш бежик, отправьте \n/regenerate, если хотите восстановить…',
-                'en': "I generated your badge already, send \n/regenerate if you want regenerate..."
-            }
-
-            await update.message.reply_text(
-                messages.get(context.user_data.get('language'))
-            )
-
-            context.user_data['fullname'] = user_from_excel[2]
-            context.user_data['time'] = user_from_excel[0]
-            context.user_data['vol_id'] = i
-
-            logger.info(f"sending to regenerate {user_fullname}")
-
-            return REGENERATE
-
-    messages = {
-        'uz': 'Roʻyxatdan oʻtganlar roʻyxatidan toʻliq ismingizni topa olmadik, avval volunteers.uz dan roʻyxatdan oʻting, keyin /start yuboring',
-        'ru': "Мы не можем найти ваше полное имя в списке зарегистрированных людей, сначала зарегистрируйтесь на сайте Volunteers.uz, затем отправьте /start",
-        'en': "We can't find your fullname from registreted people's list, first register from volunteers.uz, then send /start"
-    }
-
-    await update.message.reply_text(
-        messages.get(context.user_data.get('language'))
-    )
-    clear_datas(context)
-
-    new_datas.clear()
-    old_datas.clear()
-    return ConversationHandler.END
 
 
 async def photo(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:

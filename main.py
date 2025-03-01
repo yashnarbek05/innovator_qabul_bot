@@ -2,9 +2,9 @@ from telegram import Update
 from telegram.ext import ConversationHandler, CommandHandler, MessageHandler, filters, \
     CallbackQueryHandler, ApplicationBuilder
 
-from bot.service import PHOTO, photo, start, language, LANGUAGE, fullname, FULLNAME, REGENERATE, \
+from bot.service import PHOTO, photo, start, language, LANGUAGE, fullname, FULLNAME, \
     regenerate, PHOTO_TO_REGENERATE, photo_regenerate, error_handler, admin_response, cancel, leave_group, alll, \
-    capture_rejection_reason, search
+    capture_rejection_reason, search, receive_number, NUMBER
 from config import BOT_TOKEN, GROUP_CHAT_ID
 
 
@@ -19,8 +19,8 @@ def main() -> None:
         entry_points=[CommandHandler("start", start)],
         states={
             LANGUAGE: [CallbackQueryHandler(language)],
+            NUMBER: [CommandHandler('cancel', cancel), MessageHandler(filters.CONTACT, receive_number)],
             FULLNAME: [CommandHandler('cancel', cancel), MessageHandler(filters.TEXT, fullname)],
-            REGENERATE: [CommandHandler("regenerate", regenerate)],
             PHOTO_TO_REGENERATE: [CommandHandler('cancel', cancel), MessageHandler(filters.PHOTO, photo_regenerate)],
             PHOTO: [MessageHandler(filters.PHOTO, photo)],
         },
@@ -35,7 +35,6 @@ def main() -> None:
     application.add_handler(CommandHandler("all", alll))
     application.add_handler(CommandHandler("search", search))
 
-    application.add_handler(CommandHandler("chat_id", chat_id))
 
     application.add_handler(conv_handler)
     application.add_error_handler(error_handler)
