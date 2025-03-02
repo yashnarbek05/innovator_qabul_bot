@@ -461,9 +461,9 @@ async def admin_response(update: Update, context: ContextTypes.DEFAULT_TYPE):
                     logging.info("Photo opened for sending to user!")
 
                     messages = {
-                        'uz': "Tabriklaymiz🎉, sizning  guvohnomangiz tayyor bo'ldi. Volontyorlik faoliyatingizga omad tilaymiz. Volontyorlik oilamizga xush kelibsiz🤗\nKanalimizga obuna bo'ling: @Volunteers_uz",
-                        'ru': 'Поздравляем🎉, ваш сертификат готов. Удачи в вашем волонтерстве. Добро пожаловать в нашу волонтерскую семью🤗\nПодпишитесь на наш канал: @Volunteers_uz',
-                        'en': "Congratulations🎉, your certificate is ready. Good luck with your volunteering. Welcome to our volunteer family🤗\nSubscribe to our channel: @Volunteers_uz"
+                        'uz': "Tabriklaymiz🎉, Sizning  guvohnomangiz tayyor boʻldi va  muvaffaqiyatli roʻyxatdan oʻtingiz. Yosh innovatorlar forumi 3-mavsumida faol ishtirok etishingizni tilaymiz.\nYanada koʻproq maʼlumotni shu yerdan oling: https://ezgu.uz/",
+                        'ru': 'Поздравляем🎉, ваш ID готов и вы успешно зарегистрировались. Желаем вам активного участия в 3-м сезоне Форума молодых инноваторов.\nБолее подробную информацию можно получить здесь: https://ezgu.uz/',
+                        'en': "Congratulations🎉, Your ID is ready and you have successfully registered. We wish you active participation in the 3rd season of the Young Innovators Forum.\nGet more information here: https://ezgu.uz/"
                     }
 
                     await context.bot.send_photo(chat_id=user.get_chat_id(),

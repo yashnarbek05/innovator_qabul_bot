@@ -21,20 +21,20 @@ async def write_name_and_second_name_to_badge(fullname, vol_id):
 
         n_len = draw.textlength(name if len(name) > len(second_name) else second_name, font=font)
 
-        draw.multiline_text(((width - n_len) / 2, height / 2 + 200),
+        draw.multiline_text(((width - n_len) / 2, 3182),
                             name + "\n" + second_name,
-                            "#ffe978",
+                            "#000000",
                             font=font,
                             align="center")
 
 
         photo_name = f"images/{name}_{second_name}.png"
 
-        draw.text(((width / 4) + 350, (height * 3 / 4) - 300), str(vol_id), font=ImageFont.truetype(FONT_PATH, 120))
+        draw.text((1554, 4000), str(vol_id), font=ImageFont.truetype(FONT_PATH, 120), fill="#000000")
 
 
-        draw.text(((width / 4) + 250, (height * 3 / 4) + 50), datetime.now().strftime("%d.%m.%Y"),
-                  font=ImageFont.truetype(FONT_PATH, 120))
+        draw.text((1554, 4219), datetime.now().strftime("%d.%m.%Y"),
+                  font=ImageFont.truetype(FONT_PATH, 120), fill="#000000")
 
 
         im.save(photo_name)
@@ -66,16 +66,13 @@ async def add_photo_to_badge(name_written_photo, user_photo):
     # Step 4: Paste the circular cutout onto the background image
     bg_width, bg_height = background_image.size
     circular_cutout = circular_cutout.resize(
-        (int(bg_width / 2) - 180, int(bg_width / 2) - 180))  # Resize cutout if needed
-    x_offset = int((bg_width + 290) // 4)  # Center horizontally
-    y_offset = int((bg_width + 1000) // 4)  # Center vertically
+        (1613, 1613))  # Resize cutout if needed
+    x_offset = 819  # Center horizontally
+    y_offset = 1421  # Center vertically
     background_image.paste(circular_cutout, (x_offset, y_offset), circular_cutout)
 
 
-    # Step 5: Save the result
-    resized_image = background_image.resize((860,1200))
-
-    resized_image.save(name_written_photo)
+    background_image.save(name_written_photo)
 
     background_image.close()
 
