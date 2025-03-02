@@ -1,5 +1,7 @@
 class User:
-    def __init__(self, number, fullname, age, work_place, email, hudud, direction, user_photo, offers, language):
+    def __init__(self, chat_id, date, number, fullname, age, work_place, email, hudud, direction, user_photo, offers, language):
+        self._chat_id = chat_id
+        self._date = date
         self._number = number
         self._fullname = fullname
         self._age = age
@@ -13,6 +15,10 @@ class User:
 
     def get_fullname(self):
         return self._fullname
+    
+
+    def get_chat_id(self):
+        return self._chat_id
 
     def get_number(self):
         return self._number
@@ -40,3 +46,12 @@ class User:
     
     def get_email(self):
         return self._email
+
+
+
+    def to_list(self):
+        """Convert user object to a list for Google Sheets"""
+        return [
+            self._date, self._number, self._fullname, self._age, 
+            self._work_place, self._email, self._hudud, self._direction, self._offers
+        ]

@@ -4,6 +4,8 @@ from googleapiclient.errors import HttpError
 
 from config import GOOGLE_SHEET_URL, KEYS_PATH
 
+from bot.models.user import User
+
 SCOPES = ["https://www.googleapis.com/auth/spreadsheets"]
 
 creds = Credentials.from_service_account_file(KEYS_PATH, scopes=SCOPES)
@@ -31,10 +33,21 @@ async def get_values_from_sheet(sheet_name: str):
         print(f"An unexpected error occurred: {e}")
         return []
 
+async def write_user_info_to_sheet(row_index: int, user: User, sheet_name: str):
+    # is_allowed = N row
+
+    values = [user.to_list()]
+    request = service.spreadsheets().values().update(spreadsheetId=GOOGLE_SHEET_URL, range=f'{sheet_name}!A{row_index + 1}:I{row_index + 1}',
+                                                     valueInputOption="RAW",
+                                                     body={"values": values})
+    response = request.execute()
+
+    return response.get("updatedRows")
+
 
 async def update_allowing(index: int, allowed: bool, sheet_name: str):
-    # is_allowed = N row
-    request = service.spreadsheets().values().update(spreadsheetId=GOOGLE_SHEET_URL, range=f'{sheet_name}!N{index + 1}',
+
+    request = service.spreadsheets().values().update(spreadsheetId=GOOGLE_SHEET_URL, range=f'{sheet_name}!K{index + 1}',
                                                      valueInputOption="RAW",
                                                      body={"values": [[allowed]]})
     response = request.execute()
@@ -45,7 +58,7 @@ async def update_allowing(index: int, allowed: bool, sheet_name: str):
 async def update_given(index: int, given: bool, sheet_name: str):
     # is_given   = M row
 
-    request = service.spreadsheets().values().update(spreadsheetId=GOOGLE_SHEET_URL, range=f'{sheet_name}!M{index + 1}',
+    request = service.spreadsheets().values().update(spreadsheetId=GOOGLE_SHEET_URL, range=f'{sheet_name}!J{index + 1}',
                                                      valueInputOption="RAW",
                                                      body={"values": [[given]]})
     response = request.execute()
@@ -53,12 +66,12 @@ async def update_given(index: int, given: bool, sheet_name: str):
     return response.get("updatedRows"), given
 
 
-async def write_volunteer_id(index: int, sheet_name: str, vol_id: int):
+async def write_part_id(index: int, sheet_name: str, part_id: int):
     # volunteer_id   = O row
 
-    request = service.spreadsheets().values().update(spreadsheetId=GOOGLE_SHEET_URL, range=f'{sheet_name}!O{index + 1}',
+    request = service.spreadsheets().values().update(spreadsheetId=GOOGLE_SHEET_URL, range=f'{sheet_name}!L{index + 1}',
                                                      valueInputOption="RAW",
-                                                     body={"values": [[vol_id]]})
+                                                     body={"values": [[part_id]]})
     response = request.execute()
 
-    return response.get("updatedRows"), vol_id
+    return response.get("updatedRows"), part_id
