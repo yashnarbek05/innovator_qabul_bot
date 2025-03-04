@@ -29,6 +29,7 @@ LANGUAGE, FULLNAME, NUMBER, AGE, WORK, GMAIL, HUDUD, DIRECTION, OFFERS, PHOTO, R
 users_apply_certificate = list()
 
 async def check_user_in_channels(user_id, context: ContextTypes.DEFAULT_TYPE):
+
     for channel in REQUESTED_CHANNELS:
         try:
             member = await context.bot.get_chat_member(chat_id=channel, user_id=user_id)
@@ -655,7 +656,7 @@ async def alll(update: Update, context: ContextTypes.DEFAULT_TYPE):
             f"New volunteer🥳 \n\n"
             f"user-id: `{volunteer.get_chat_id()}`\n"
             f"full-name: {volunteer.get_fullname()}\n"
-            f"Joined: {volunteer.get_time()}"
+            f"Joined: {volunteer.get_date()}"
         )
 
         keyboard = [
