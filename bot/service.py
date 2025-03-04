@@ -7,9 +7,10 @@ from telegram.ext import (
     ContextTypes,
     ConversationHandler, CallbackContext,
 )
+from telegram.error import BadRequest
 
 from bot.models.user import User
-from config import GROUP_CHAT_ID, SHEET_NAME
+from config import GROUP_CHAT_ID, SHEET_NAME, REQUESTED_CHANNELS
 from image.service import prepare_badge
 from sheet.service import get_values_from_sheet, update_allowing, update_given, write_part_id, write_user_info_to_sheet
 
@@ -27,9 +28,39 @@ LANGUAGE, FULLNAME, NUMBER, AGE, WORK, GMAIL, HUDUD, DIRECTION, OFFERS, PHOTO, R
 
 users_apply_certificate = list()
 
+async def check_user_in_channels(user_id, context: ContextTypes.DEFAULT_TYPE):
+    for channel in REQUESTED_CHANNELS:
+        try:
+            member = await context.bot.get_chat_member(chat_id=channel, user_id=user_id)
+            if member.status not in ["member", "administrator", "creator"]:
+                return False
+        except BadRequest:
+            pass  # Bot might not have access or user is not a member
+
+    return True
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     """Starts the conversation and asks the user about their gender."""
+
+    
+
+    if not await check_user_in_channels(update.effective_user.id, context):
+        keyboard = []
+        for channel_url in REQUESTED_CHANNELS:
+            clean_channel = channel_url.replace("@", "")
+            keyboard.append([InlineKeyboardButton(clean_channel, url=f"https://t.me/{clean_channel}")])
+
+        reply_markup = InlineKeyboardMarkup(keyboard)
+
+        # Send message with inline keyboard
+        await update.message.reply_text(
+            "Majburiy kanallarga obuna bo'ling va qaytadan /start bosing:",
+            reply_markup=reply_markup
+        )
+
+        clear_datas(context)
+        return ConversationHandler.END
+
     keyboard = [
         [InlineKeyboardButton("English🇺🇸", callback_data="en")],
         [InlineKeyboardButton("O'zbek🇺🇿", callback_data="uz")],
@@ -83,6 +114,7 @@ async def receive_number(update: Update, context: CallbackContext) -> None:
         }
 
         await update.message.reply_text(messages.get(context.user_data.get('language')))
+        clear_datas(context)
         return ConversationHandler.END
 
 
