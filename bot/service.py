@@ -30,7 +30,9 @@ users_apply_certificate = list()
 
 async def check_user_in_channels(user_id, context: ContextTypes.DEFAULT_TYPE):
 
+
     for channel in REQUESTED_CHANNELS:
+        
         try:
             member = await context.bot.get_chat_member(chat_id=channel, user_id=user_id)
             if member.status not in ["member", "administrator", "creator"]:
@@ -42,10 +44,14 @@ async def check_user_in_channels(user_id, context: ContextTypes.DEFAULT_TYPE):
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
     """Starts the conversation and asks the user about their gender."""
-
+    if update.effective_user is None:
+        logger.error("update.effective_user is None")
+        return 
+    user_id = update.effective_user.id
     
 
-    if not await check_user_in_channels(update.effective_user.id, context):
+    if not await check_user_in_channels(user_id, context):
+
         keyboard = []
         for channel_url in REQUESTED_CHANNELS:
             clean_channel = channel_url.replace("@", "")
@@ -182,7 +188,7 @@ def clear_datas(context):
 
 
 async def fullname(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    user = update.message.from_user
+    user_id = update.effective_user.id
     user_fullname = update.message.text
 
     result = all(not char.isdigit() for char in user_fullname)
@@ -196,7 +202,7 @@ async def fullname(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
         await update.message.reply_text(messages.get(context.user_data.get('language')))
         return FULLNAME
 
-    requested = any(int(user.id) == int(userr.get_chat_id()) or user_fullname == userr.get_fullname() for userr in
+    requested = any(int(user_id) == int(userr.get_chat_id()) or user_fullname == userr.get_fullname() for userr in
                     users_apply_certificate)
 
     if requested:

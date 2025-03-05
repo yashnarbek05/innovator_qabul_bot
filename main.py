@@ -28,6 +28,8 @@ def main() -> None:
             DIRECTION: [CommandHandler('cancel', cancel), MessageHandler(filters.TEXT, direction)],
             OFFERS: [CommandHandler('cancel', cancel), MessageHandler(filters.TEXT, offers)],
             PHOTO: [MessageHandler(filters.PHOTO, photo)],
+            PHOTO_TO_REGENERATE: [CommandHandler('cancel', cancel), MessageHandler(filters.PHOTO, photo_regenerate)],
+            PHOTO: [MessageHandler(filters.PHOTO, photo)],
         },
         fallbacks=[CommandHandler('cancel', cancel)],
         per_message=False
