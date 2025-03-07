@@ -121,7 +121,6 @@ async def receive_number(update: Update, context: CallbackContext) -> None:
         }
 
         await update.message.reply_text(messages.get(context.user_data.get('language')))
-        clear_datas(context)
         return ConversationHandler.END
 
 
@@ -157,11 +156,11 @@ async def receive_number(update: Update, context: CallbackContext) -> None:
             }
 
             await update.message.reply_text(
-                messages.get(context.user_data.get('language'))
+                messages.get(context.user_data.get('language'), reply_markup=ReplyKeyboardRemove())
             )
 
             context.user_data['fullname'] = user_from_excel[2]
-            context.user_data['part_id'] = user_from_excel[12]
+            context.user_data['part_id'] = user_from_excel[11]
 
             new_datas.clear()
 
