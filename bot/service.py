@@ -438,8 +438,8 @@ async def photo(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
 
 
 async def error_handler(update: Update, context: CallbackContext):
-    """Log the error and send a message to the user."""
-    # Log the error
+
+    error_message = str(context.error)
 
     if "'NoneType' object has no attribute 'chat_id'" in error_message:
         return
