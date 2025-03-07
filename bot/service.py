@@ -326,11 +326,11 @@ async def hudud(update: Update, context: CallbackContext) -> None:
     context.user_data["hudud"] = hudud
 
     keyboard = [
-        [KeyboardButton("  SOCIAL MEDIA MARKETING")],
-        [KeyboardButton("  ROBOTOTEXNOLOGIYA")],
-        [KeyboardButton("  FRILIANSERLIK ISTIQBOLLARI")],
-        [KeyboardButton("   IJTIMOIY START-UPLAR YARATISH")],
-        [KeyboardButton("  SUNʼIY INTELLEKT")],
+        [KeyboardButton("💢 SOCIAL MEDIA MARKETING")],
+        [KeyboardButton("💢 ROBOTOTEXNOLOGIYA")],
+        [KeyboardButton("💢 FRILIANSERLIK ISTIQBOLLARI")],
+        [KeyboardButton("💢 IJTIMOIY START-UPLAR YARATISH")],
+        [KeyboardButton("💢 SUNʼIY INTELLEKT")],
                 
                 
     ]
@@ -440,6 +440,10 @@ async def photo(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
 async def error_handler(update: Update, context: CallbackContext):
     """Log the error and send a message to the user."""
     # Log the error
+
+    if "'NoneType' object has no attribute 'chat_id'" in error_message:
+        return
+    
     logger.error(f"Exception occurred: {context.error}")
     await context.bot.send_message(chat_id=GROUP_CHAT_ID,
                                    text=f"Xatolik yuz berdi😢: \n\n{context.error}")
@@ -500,9 +504,9 @@ async def admin_response(update: Update, context: ContextTypes.DEFAULT_TYPE):
                     logging.info("Photo opened for sending to user!")
 
                     messages = {
-                        'uz': "Tabriklaymiz🎉, Sizning  guvohnomangiz tayyor boʻldi va  muvaffaqiyatli roʻyxatdan oʻtingiz. Yosh innovatorlar forumi 3-mavsumida faol ishtirok etishingizni tilaymiz.\nYanada koʻproq maʼlumotni shu yerdan oling: https://ezgu.uz/",
-                        'ru': 'Поздравляем🎉, ваш ID готов и вы успешно зарегистрировались. Желаем вам активного участия в 3-м сезоне Форума молодых инноваторов.\nБолее подробную информацию можно получить здесь: https://ezgu.uz/',
-                        'en': "Congratulations🎉, Your ID is ready and you have successfully registered. We wish you active participation in the 3rd season of the Young Innovators Forum.\nGet more information here: https://ezgu.uz/"
+                        'uz': "Tabriklaymiz🎉, Sizning  guvohnomangiz tayyor boʻldi va  muvaffaqiyatli roʻyxatdan oʻtingiz. Yosh innovatorlar forumi 3-mavsumida faol ishtirok etishingizni tilaymiz.\nMaxsus guruhga qo'shiling: https://t.me/+FldSEeuG0202ZjEy",
+                        'ru': 'Поздравляем🎉, ваш ID готов и вы успешно зарегистрировались. Желаем вам активного участия в 3-м сезоне Форума молодых инноваторов.\nВступайте в закрытую группу: https://t.me/+FldSEeuG0202ZjEy',
+                        'en': "Congratulations🎉, Your ID is ready and you have successfully registered. We wish you active participation in the 3rd season of the Young Innovators Forum.\nJoin the private group: https://t.me/+FldSEeuG0202ZjEy"
                     }
 
                     await context.bot.send_photo(chat_id=user.get_chat_id(),
@@ -623,9 +627,9 @@ async def photo_regenerate(update: Update, context: ContextTypes.DEFAULT_TYPE) -
                                      str(context.user_data.get("part_id")),
                                      f"images/user_photo/{context.user_data.get('fullname')}.jpg")
     messages = {
-        'uz': "Tabriklaymiz🎉, Sizning  guvohnomangiz tayyor boʻldi va  muvaffaqiyatli roʻyxatdan oʻtingiz. Yosh innovatorlar forumi 3-mavsumida faol ishtirok etishingizni tilaymiz.\nYanada koʻproq maʼlumotni shu yerdan oling: https://ezgu.uz/",
-        'ru': 'Поздравляем🎉, ваш ID готов и вы успешно зарегистрировались. Желаем вам активного участия в 3-м сезоне Форума молодых инноваторов.\nБолее подробную информацию можно получить здесь: https://ezgu.uz/',
-        'en': "Congratulations🎉, Your ID is ready and you have successfully registered. We wish you active participation in the 3rd season of the Young Innovators Forum.\nGet more information here: https://ezgu.uz/"
+        'uz': "Tabriklaymiz🎉, Sizning  guvohnomangiz tayyor boʻldi va  muvaffaqiyatli roʻyxatdan oʻtingiz. Yosh innovatorlar forumi 3-mavsumida faol ishtirok etishingizni tilaymiz.\nMaxsus guruhga qo'shiling: https://t.me/+FldSEeuG0202ZjEy",
+        'ru': 'Поздравляем🎉, ваш ID готов и вы успешно зарегистрировались. Желаем вам активного участия в 3-м сезоне Форума молодых инноваторов.\nВступайте в закрытую группу: https://t.me/+FldSEeuG0202ZjEy',
+        'en': "Congratulations🎉, Your ID is ready and you have successfully registered. We wish you active participation in the 3rd season of the Young Innovators Forum.\nJoin the private group: https://t.me/+FldSEeuG0202ZjEy"
     }
 
     with open(photo_name, "rb") as prepared_badge:
