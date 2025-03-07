@@ -147,7 +147,7 @@ async def receive_number(update: Update, context: CallbackContext) -> None:
 
             return FULLNAME
 
-        elif (contact.phone_number == user_from_excel[0]
+        elif (contact.phone_number == user_from_excel[1]
               and user_from_excel[9] == 'TRUE'  # is_given
         ):
             messages = {
