@@ -129,7 +129,7 @@ async def receive_number(update: Update, context: CallbackContext) -> None:
 
     for i in range(1, len(new_datas)):
         user_from_excel = new_datas[i]
-        if (contact.phone_number == user_from_excel[0] and
+        if (contact.phone_number == user_from_excel[1] and
                 (len(user_from_excel) <= 8 or user_from_excel[9] == 'FALSE') and  # is_given
                 (len(user_from_excel) <= 9 or user_from_excel[10] == 'FALSE')  # is_allowed
         ):
